@@ -17,6 +17,8 @@ TcpClient::TcpClient(QWidget *parent) :
     // 连接服务器
     m_tcpSocket.connectToHost(QHostAddress(m_strIP),m_usPort);
 
+    // 测试提交
+
 
 }
 
