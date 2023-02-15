@@ -24,15 +24,24 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += \
+    book.cpp \
+    friend.cpp \
         main.cpp \
+    online.cpp \
+    opewidget.cpp \
         tcpclient.cpp \
     protocol.cpp
 
 HEADERS += \
+    book.h \
+    friend.h \
+    online.h \
+    opewidget.h \
         tcpclient.h \
     protocol.h
 
 FORMS += \
+        online.ui \
         tcpclient.ui
 
 RESOURCES += \

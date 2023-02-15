@@ -130,8 +130,6 @@ void TcpClient::on_login_pb_clicked()
     }else{
         QMessageBox::critical(this,"登录","登陆失败，用户名或用户密码为空！");
     }
-
-
 }
 
 void TcpClient::on_regist_pb_clicked()
