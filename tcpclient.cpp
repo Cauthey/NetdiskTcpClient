@@ -54,6 +54,17 @@ void TcpClient::loadConfig(){
     }
 }
 
+TcpClient &TcpClient::getInstance()
+{
+    static TcpClient instance;
+    return instance;
+}
+
+QTcpSocket &TcpClient::getTcpSocket()
+{
+    return m_tcpSocket;
+}
+
 void TcpClient::showConnect()
 {
     QMessageBox::information(this,"连接服务器","连接服务器成功");
@@ -83,13 +94,21 @@ void TcpClient::recvMsg()
     {
         if(0 == strcmp(pdu->caData,LOGIN_SUCCESS)){
             QMessageBox::information(this,"登录",LOGIN_SUCCESS);
+            OpeWidget::getInstance().show();
+            this->hide();
+            //hide(); 隐藏的形参可写可不写this
         }else if(0 == strcmp(pdu->caData,LOGIN_FAILED)){
             QMessageBox::warning(this,"登录",LOGIN_FAILED);
         }else{
             QMessageBox::warning(this,"登录","unknown error");
         }
         break;
+    }
+    case ENUM_MSG_TYPE_ALL_ONLINE_RESPOND:
+    {
+        OpeWidget::getInstance().getFriend()->showAllOnlineUser(pdu);
 
+        break;
     }
     default:
         break;

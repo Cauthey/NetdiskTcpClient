@@ -13,38 +13,18 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>344</width>
-     <height>194</height>
+     <width>371</width>
+     <height>201</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
      <widget class="QListWidget" name="Online_listWidget">
-      <item>
-       <property name="text">
-        <string>新建项目</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>12</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>1</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>2</string>
-       </property>
-      </item>
       <item>
        <property name="text">
         <string>2</string>
@@ -73,11 +53,6 @@
       <item>
        <property name="text">
         <string>12</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>新建项目</string>
        </property>
       </item>
      </widget>

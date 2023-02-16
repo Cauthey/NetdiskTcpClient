@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QFile>
 #include <QTcpSocket>
+#include "opewidget.h"
 
 namespace Ui {
 class TcpClient;
@@ -17,6 +18,10 @@ public:
     explicit TcpClient(QWidget *parent = 0);
     ~TcpClient();
     void loadConfig();
+
+    static TcpClient &getInstance();
+
+    QTcpSocket &getTcpSocket();
 
 public slots:
     void showConnect();

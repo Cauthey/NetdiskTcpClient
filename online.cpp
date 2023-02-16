@@ -12,3 +12,16 @@ online::~online()
 {
     delete ui;
 }
+
+void online::showUser(PDU *pdu)
+{
+    if(NULL==pdu){
+        return ;
+    }
+    int uiSize = pdu->uiMsgLen/32;
+    char caTemp[32];
+    for(int i=0;i< uiSize;i++){
+        memcpy(caTemp,(char*)pdu->caMsg+i*32,32);
+        ui->Online_listWidget->addItem(caTemp);
+    }
+}

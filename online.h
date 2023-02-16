@@ -2,6 +2,8 @@
 #define ONLINE_H
 
 #include <QWidget>
+#include"protocol.h"
+
 
 namespace Ui {
 class online;
@@ -14,6 +16,8 @@ class online : public QWidget
 public:
     explicit online(QWidget *parent = nullptr);
     ~online();
+
+    void showUser(PDU *pdu);
 
 private:
     Ui::online *ui;
