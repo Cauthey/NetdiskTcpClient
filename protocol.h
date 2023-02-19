@@ -10,6 +10,9 @@ typedef unsigned int uint;
 #define LOGIN_SUCCESS "login success"
 #define LOGIN_FAILED "login failed : name or password error or relogin"
 
+#define SEARCH_USR_NO "no such people!"
+#define SEARCH_USR_ONLINE "online!"
+#define SEARCH_USR_OFFLINE "offine!"
 // 消息类型写成枚举形式
 
 enum ENUM_MSG_TYPE{
@@ -22,8 +25,8 @@ enum ENUM_MSG_TYPE{
     ENUM_MSG_TYPE_ALL_ONLINE_REQUEST,   // 请求所有在线用户
     ENUM_MSG_TYPE_ALL_ONLINE_RESPOND,   // 请求所有在线用户的回复
 
-    ENUM_MSG_TYPE_SEARCH_REQUEST,   // 搜索请求
-    ENUM_MSG_TYPE_SEARCH_RESPOND,   // 搜索回复
+    ENUM_MSG_TYPE_SEARCH_USER_REQUEST,   // 搜索请求
+    ENUM_MSG_TYPE_SEARCH_USER_RESPOND,   // 搜索回复
 
 
 //    ENUM_MSG_TYPE_RESPOND=0,

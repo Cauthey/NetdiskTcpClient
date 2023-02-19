@@ -110,6 +110,18 @@ void TcpClient::recvMsg()
 
         break;
     }
+    case ENUM_MSG_TYPE_SEARCH_USER_RESPOND:
+    {
+        if(0==strcmp(SEARCH_USR_NO,pdu->caData)){
+            QMessageBox::information(this,"搜索",QString("%1: not exist").arg(OpeWidget::getInstance().getFriend()->m_strSearchName));
+        }else if (0==strcmp(SEARCH_USR_ONLINE,pdu->caData)){
+            QMessageBox::information(this,"搜索",QString("%1: online").arg(OpeWidget::getInstance().getFriend()->m_strSearchName));
+        }else if (0==strcmp(SEARCH_USR_OFFLINE,pdu->caData)){
+            QMessageBox::information(this,"搜索",QString("%1: offine").arg(OpeWidget::getInstance().getFriend()->m_strSearchName));
+        }
+        OpeWidget::getInstance().getFriend()->m_strSearchName = "";
+        break;
+    }
     default:
         break;
     }

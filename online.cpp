@@ -20,6 +20,7 @@ void online::showUser(PDU *pdu)
     }
     int uiSize = pdu->uiMsgLen/32;
     char caTemp[32];
+    ui->Online_listWidget->clear();
     for(int i=0;i< uiSize;i++){
         memcpy(caTemp,(char*)pdu->caMsg+i*32,32);
         ui->Online_listWidget->addItem(caTemp);
