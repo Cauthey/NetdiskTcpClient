@@ -13,6 +13,14 @@ typedef unsigned int uint;
 #define SEARCH_USR_NO "no such people!"
 #define SEARCH_USR_ONLINE "online!"
 #define SEARCH_USR_OFFLINE "offine!"
+
+#define UNKNOWN_ERROR "unknown error!"
+#define FRIEND_EXISTS "friend exists!"
+#define USER_NOT_EXISTS "user not exists!"
+#define USER_OFFINE "user offine!"
+
+
+
 // 消息类型写成枚举形式
 
 enum ENUM_MSG_TYPE{
@@ -25,12 +33,19 @@ enum ENUM_MSG_TYPE{
     ENUM_MSG_TYPE_ALL_ONLINE_REQUEST,   // 请求所有在线用户
     ENUM_MSG_TYPE_ALL_ONLINE_RESPOND,   // 请求所有在线用户的回复
 
+
     ENUM_MSG_TYPE_SEARCH_USER_REQUEST,   // 搜索请求
     ENUM_MSG_TYPE_SEARCH_USER_RESPOND,   // 搜索回复
 
+    ENUM_MSG_TYPE_ADD_FRIEND_REQUEST,   // 添加好友请求
+    ENUM_MSG_TYPE_ADD_FRIEND_RESPOND,   // 添加好友回复
 
-//    ENUM_MSG_TYPE_RESPOND=0,
-//    ENUM_MSG_TYPE_RESPOND=0,
+    ENUM_MSG_TYPE_ADD_FRIEND_AGREE,   // 同意好友请求
+    ENUM_MSG_TYPE_ADD_FRIEND_REFUSE,   // 拒绝好友请求
+
+
+    ENUM_MSG_TYPE_FRIEND_FLUSH_REQUEST,   // 刷新好友请求
+    ENUM_MSG_TYPE_FRIEND_FLUSH_RESPOND,   // 刷新好友回复
 //    ENUM_MSG_TYPE_RESPOND=0,
 //    ENUM_MSG_TYPE_RESPOND=0,
 //    ENUM_MSG_TYPE_RESPOND=0,

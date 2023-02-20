@@ -65,6 +65,11 @@ QTcpSocket &TcpClient::getTcpSocket()
     return m_tcpSocket;
 }
 
+QString TcpClient::loginName()
+{
+    return  m_strLoginName;
+}
+
 void TcpClient::showConnect()
 {
     QMessageBox::information(this,"连接服务器","连接服务器成功");
@@ -122,6 +127,35 @@ void TcpClient::recvMsg()
         OpeWidget::getInstance().getFriend()->m_strSearchName = "";
         break;
     }
+    //  TODO
+    case ENUM_MSG_TYPE_ADD_FRIEND_REQUEST:
+    {
+        char caName[32]={'\0'};
+        strncpy(caName,pdu->caData+32,32);
+        int res = QMessageBox::information(this,"添加好友",QString("%1 want to add you as friend!").arg(caName)
+                                 ,QMessageBox::Yes,QMessageBox::No);
+        PDU *respdu = mkPDU(0);
+        memcpy(respdu->caData,pdu->caData,32);
+        if(QMessageBox::Yes==res){
+            respdu->uiMsgType = ENUM_MSG_TYPE_ADD_FRIEND_AGREE;
+        }else{
+            respdu->uiMsgType = ENUM_MSG_TYPE_ADD_FRIEND_REFUSE ;
+        }
+        m_tcpSocket.write((char*)respdu,respdu->uiPDULen);
+        free(respdu);
+        respdu =NULL;
+        break;
+    }
+    case ENUM_MSG_TYPE_ADD_FRIEND_RESPOND:
+    {
+        QMessageBox::information(this,"添加好友",pdu->caData);
+        break;
+    }
+    case ENUM_MSG_TYPE_FRIEND_FLUSH_RESPOND:
+    {
+        OpeWidget::getInstance().getFriend()->updateFriendList(pdu);
+        break;
+    }
     default:
         break;
     }
@@ -150,6 +184,7 @@ void TcpClient::on_login_pb_clicked()
     QString strPwd = ui->pwd_le->text();
     if(!strName.isEmpty()&& !strPwd.isEmpty())
     {
+        m_strLoginName = strName;
         PDU *pdu = mkPDU(0);
         pdu->uiMsgType = ENUM_MSG_TYPE_LOGIN_REQUEST;
         strncpy(pdu->caData,strName.toStdString().c_str(),32);   // 数组前32位放用户名

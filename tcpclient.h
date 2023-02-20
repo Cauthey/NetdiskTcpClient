@@ -23,6 +23,8 @@ public:
 
     QTcpSocket &getTcpSocket();
 
+    QString loginName();
+
 public slots:
     void showConnect();
     void recvMsg();
@@ -42,6 +44,7 @@ private:
 
     // 连接服务器和服务器斤西瓜交互
     QTcpSocket m_tcpSocket;
+    QString m_strLoginName;
 };
 
 #endif // TCPCLIENT_H

@@ -1,5 +1,6 @@
 #include "online.h"
 #include "ui_online.h"
+#include "tcpclient.h"
 
 online::online(QWidget *parent) :
     QWidget(parent),
@@ -26,3 +27,18 @@ void online::showUser(PDU *pdu)
         ui->Online_listWidget->addItem(caTemp);
     }
 }
+
+void online::on_addFriend_pb_clicked()
+{
+    QListWidgetItem *pItem =  ui->Online_listWidget->currentItem();
+    QString strPerUserName =  pItem->text();
+    QString strLoginName = TcpClient::getInstance().loginName();
+    PDU *pdu = mkPDU(0);
+    pdu->uiMsgType = ENUM_MSG_TYPE_ADD_FRIEND_REQUEST;
+    memcpy(pdu->caData,strPerUserName.toStdString().c_str(),strPerUserName.size());
+    memcpy(pdu->caData+32,strLoginName.toStdString().c_str(),strLoginName.size());
+    TcpClient::getInstance().getTcpSocket().write((char*)pdu,pdu->uiPDULen);
+    free(pdu);
+    pdu=NULL;
+}
+
