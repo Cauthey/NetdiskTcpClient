@@ -151,10 +151,23 @@ void TcpClient::recvMsg()
         QMessageBox::information(this,"添加好友",pdu->caData);
         break;
     }
+
     case ENUM_MSG_TYPE_FRIEND_FLUSH_RESPOND:
     {
         OpeWidget::getInstance().getFriend()->updateFriendList(pdu);
         break;
+    }
+    case ENUM_MSG_TYPE_DELETE_FRIEND_REQUEST:
+    {
+        char caName[32] = {'\0'};
+        memcpy(caName,pdu->caData,32);
+        QMessageBox::information(this,"删除好友",QString("%1 已将你删除").arg(caName));
+        break;
+    }
+    case ENUM_MSG_TYPE_DELETE_FRIEND_RESPOND:
+    {
+        QMessageBox::information(this,"删除好友","删除好友成功");
+       break;
     }
     default:
         break;

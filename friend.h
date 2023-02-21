@@ -29,6 +29,8 @@ public slots:
 
     void flushFriend();
 
+    void delFriend();
+
 private:
     QTextEdit *m_pShowMsgTE;
     QListWidget *m_pFriendListWidget;
