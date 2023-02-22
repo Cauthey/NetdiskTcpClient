@@ -29,6 +29,7 @@ SOURCES += \
         main.cpp \
     online.cpp \
     opewidget.cpp \
+    privatechat.cpp \
         tcpclient.cpp \
     protocol.cpp
 
@@ -37,11 +38,13 @@ HEADERS += \
     friend.h \
     online.h \
     opewidget.h \
+    privatechat.h \
         tcpclient.h \
     protocol.h
 
 FORMS += \
         online.ui \
+        privatechat.ui \
         tcpclient.ui
 
 RESOURCES += \

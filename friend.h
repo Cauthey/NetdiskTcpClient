@@ -31,6 +31,8 @@ public slots:
 
     void delFriend();
 
+    void privateChat();
+
 private:
     QTextEdit *m_pShowMsgTE;
     QListWidget *m_pFriendListWidget;
