@@ -4,8 +4,8 @@ OpeWidget::OpeWidget(QWidget *parent)
     : QWidget{parent}
 {
     m_pListW = new QListWidget(this);
-    m_pListW->addItem("好友");
-    m_pListW->addItem("图书");
+    m_pListW->addItem("好友信息");
+    m_pListW->addItem("文件操作");
 
     m_pFriend = new Friend;
     m_pBook = new Book;

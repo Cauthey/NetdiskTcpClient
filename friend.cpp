@@ -4,6 +4,7 @@
 #include<QInputdialog.h>
 #include"privatechat.h"
 #include<QMessageBox>
+#include<QString>
 
 
 Friend::Friend(QWidget *parent)
@@ -57,6 +58,8 @@ Friend::Friend(QWidget *parent)
             ,this,SLOT(delFriend()));
     connect(m_pPrivateChatPB,SIGNAL(clicked(bool))
             ,this,SLOT(privateChat()));
+    connect(m_pMsgSendPB,SIGNAL(clicked(bool))
+            ,this,SLOT(groupChat()));
 
 #include<QDebug>
 
@@ -85,6 +88,16 @@ void Friend::updateFriendList(PDU *pdu)
         qDebug() << caName;
     }
     return ;
+}
+
+void Friend::updateGroupMsg(PDU *pdu)
+{
+    if(NULL == pdu){
+        return ;
+    }
+    QString strMsg = QString("%1 says: %2").arg(pdu->caData).arg((char*)pdu->caMsg);
+    m_pShowMsgTE->append(strMsg);
+
 }
 
 void Friend::showOnline()
@@ -153,4 +166,23 @@ void Friend::privateChat()
     }else{
         QMessageBox::warning(this,"私聊","请选择私聊对象");
     }
+}
+
+void Friend::groupChat()
+{
+    QString strMsg = m_pInputMsgLE->text();
+    if(!strMsg.isEmpty()){
+        PDU *pdu = mkPDU(strMsg.size()+1);
+        pdu->uiMsgType = ENUM_MSG_TYPE_GROUP_CHAT_REQUEST;
+        QString loginName = TcpClient::getInstance().loginName();
+        strncpy(pdu->caData,loginName.toStdString().c_str(),loginName.size());
+        memcpy(pdu->caMsg,strMsg.toStdString().c_str(),strMsg.size());
+        TcpClient::getInstance().getTcpSocket().write((char*)pdu,pdu->uiPDULen);
+        free(pdu);
+        pdu=NULL;
+
+    }else{
+        QMessageBox::warning(this,"群聊","信息不能为空！");
+    }
+    m_pInputMsgLE->clear();
 }
