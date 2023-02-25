@@ -6,14 +6,22 @@
 #include<QPushButton>
 #include<QHBoxLayout>
 #include<QVBoxLayout>
+#include"protocol.h"
 
 class Book : public QWidget
 {
     Q_OBJECT
 public:
     explicit Book(QWidget *parent = nullptr);
+    void updateFileList(const PDU *pdu);
 
 signals:
+
+public slots:
+    void createDir();
+    void flushFiles();
+    void delDir();
+    void renameFile();
 
 private:
     QListWidget *m_pBookListW;

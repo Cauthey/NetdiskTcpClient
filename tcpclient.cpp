@@ -71,6 +71,11 @@ QString TcpClient::loginName()
     return  m_strLoginName;
 }
 
+QString TcpClient::curPath()
+{
+    return m_strCurPath;
+}
+
 void TcpClient::showConnect()
 {
     QMessageBox::information(this,"连接服务器","连接服务器成功");
@@ -99,6 +104,7 @@ void TcpClient::recvMsg()
     case ENUM_MSG_TYPE_LOGIN_RESPOND:
     {
         if(0 == strcmp(pdu->caData,LOGIN_SUCCESS)){
+            m_strCurPath = QString("./%1").arg(m_strLoginName);
             QMessageBox::information(this,"登录",LOGIN_SUCCESS);
             OpeWidget::getInstance().show();
             this->hide();
@@ -185,6 +191,26 @@ void TcpClient::recvMsg()
     case ENUM_MSG_TYPE_GROUP_CHAT_REQUEST:
     {
         OpeWidget::getInstance().getFriend()->updateGroupMsg(pdu);
+        break;
+    }
+    case ENUM_MSG_TYPE_CREATE_DIR_RESPOND:
+    {
+        QMessageBox::information(this,"创建文件夹",pdu->caData);
+        break;
+    }
+    case ENUM_MSG_TYPE_FLUSH_FILE_RESPOND:
+    {
+        OpeWidget::getInstance().getBook()->updateFileList(pdu);
+        break;
+    }
+    case ENUM_MSG_TYPE_DEL_DIR_RESPOND:
+    {
+        QMessageBox::information(this,"删除文件夹",pdu->caData);
+        break;
+    }
+    case ENUM_MSG_TYPE_RENAME_DIR_RESPOND:
+    {
+        QMessageBox::information(this,"重命名文件",pdu->caData);
         break;
     }
     default:

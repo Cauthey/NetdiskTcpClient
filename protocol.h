@@ -21,7 +21,15 @@ typedef unsigned int uint;
 
 #define DEL_FRIEND_OK "delete friend ok!"
 
+#define DIR_NO_EXISTS "dir not exist"
+#define FILE_NAME_EXISTS "file name exist"
+#define CREATE_DIR_SUCCESS "create dir success"
 
+#define DEL_DIR_SUCCESS "delete dir success"
+#define DEL_DIR_FAILED "delete dir failed"
+
+#define RENAME_SUCCESS "rename success"
+#define RENAME_FAILED "rename failed"
 
 // 消息类型写成枚举形式
 
@@ -58,11 +66,25 @@ enum ENUM_MSG_TYPE{
 
     ENUM_MSG_TYPE_GROUP_CHAT_REQUEST,   // 群聊请求
     ENUM_MSG_TYPE_GROUP_CHAT_RESPOND,   // 群聊回复
-//    ENUM_MSG_TYPE_RESPOND=0,
-//    ENUM_MSG_TYPE_RESPOND=0,
-//    ENUM_MSG_TYPE_RESPOND=0,
-//    ENUM_MSG_TYPE_RESPOND=0,
+
+    ENUM_MSG_TYPE_CREATE_DIR_REQUEST,   // 创建目录请求
+    ENUM_MSG_TYPE_CREATE_DIR_RESPOND,   // 创建目录回复
+
+    ENUM_MSG_TYPE_FLUSH_FILE_REQUEST,   // 刷新文件请求
+    ENUM_MSG_TYPE_FLUSH_FILE_RESPOND,   // 刷新文件回复
+
+    ENUM_MSG_TYPE_DEL_DIR_REQUEST,   // 删除文件夹请求
+    ENUM_MSG_TYPE_DEL_DIR_RESPOND,   // 删除文件夹回复
+
+    ENUM_MSG_TYPE_RENAME_DIR_REQUEST,   // 重命名请求
+    ENUM_MSG_TYPE_RENAME_DIR_RESPOND,   // 重命名回复
+
     ENUM_MSG_TYPE_MAX=0x00ffffff,
+};
+
+struct FileInfo {
+    char caName[32];  // 文件名称
+    int iFileType;   // 文件类型
 };
 
 struct PDU {

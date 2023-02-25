@@ -48,4 +48,6 @@ FORMS += \
         tcpclient.ui
 
 RESOURCES += \
-    config.qrc
+    config.qrc \
+    fileMode.qrc \
+    fileType.qrc
