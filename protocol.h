@@ -31,6 +31,9 @@ typedef unsigned int uint;
 #define RENAME_SUCCESS "rename success"
 #define RENAME_FAILED "rename failed"
 
+#define ENTER_DIR_FAILED "enter dir failed"
+#define ENTER_DIR_SUCCESS "enter dir success"
+
 // 消息类型写成枚举形式
 
 enum ENUM_MSG_TYPE{
@@ -78,6 +81,9 @@ enum ENUM_MSG_TYPE{
 
     ENUM_MSG_TYPE_RENAME_DIR_REQUEST,   // 重命名请求
     ENUM_MSG_TYPE_RENAME_DIR_RESPOND,   // 重命名回复
+
+    ENUM_MSG_TYPE_ENTER_DIR_REQUEST,   // 进入文件夹请求
+    ENUM_MSG_TYPE_ENTER_DIR_RESPOND,   // 进入文件夹回复
 
     ENUM_MSG_TYPE_MAX=0x00ffffff,
 };
