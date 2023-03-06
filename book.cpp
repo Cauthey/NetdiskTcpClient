@@ -3,12 +3,15 @@
 #include<QInputDialog>
 #include<QMessageBox>
 #include<QModelIndex>
+#include<QFileDialog>
 
 
 Book::Book(QWidget *parent)
     : QWidget{parent}
 {
     m_strEnterDir.clear();
+
+    m_pTimer = new QTimer;
 
     m_pBookListW = new QListWidget;
     m_PBReturnPB =new QPushButton("返回");
@@ -53,6 +56,12 @@ Book::Book(QWidget *parent)
             this,SLOT(enterDir(QModelIndex)));
     connect(m_PBReturnPB,SIGNAL(clicked(bool)),
             this,SLOT(returnPre()));
+    connect(m_PBDelFilePB,SIGNAL(clicked(bool)),
+            this,SLOT(delRegFile()));
+    connect(m_PBUploadFilePB,SIGNAL(clicked(bool)),
+            this,SLOT(uploadFile()));
+    connect(m_pTimer,SIGNAL(clicked(bool)),
+            this,SLOT(uploadFileData()));
 }
 
 void Book::updateFileList(const PDU *pdu)
@@ -211,6 +220,75 @@ void Book::returnPre()
     }
 
 
+}
+
+void Book::delRegFile()
+{
+    QString strCurPath = TcpClient::getInstance().curPath();
+    QListWidgetItem *pItem = m_pBookListW->currentItem();
+    if(NULL==pItem){
+        QMessageBox::warning(this,"删除文件","请选择要删除的文件!");
+    }else{
+        QString strDelName = pItem->text();
+        PDU *pdu = mkPDU(strCurPath.size()+1);
+        pdu->uiMsgType = ENUM_MSG_TYPE_DEL_FILE_REQUEST;
+        strncpy(pdu->caData,strDelName.toStdString().c_str(),strDelName.size());
+        memcpy(pdu->caMsg,strCurPath.toStdString().c_str(),strCurPath.size());
+        TcpClient::getInstance().getTcpSocket().write((char*)pdu,pdu->uiPDULen);
+        free(pdu);
+        pdu=NULL;
+    }
+}
+
+void Book::uploadFile()
+{
+    QString strCurPath = TcpClient::getInstance().curPath();
+    m_strUploadFilePath = QFileDialog::getOpenFileName();
+    qDebug() << "上传路径--->" << m_strUploadFilePath;
+    if(!m_strUploadFilePath.isEmpty()){
+        int index = m_strUploadFilePath.lastIndexOf('/');
+        QString strFileName = m_strUploadFilePath.right(m_strUploadFilePath.size()-index-1);
+        qDebug() << strFileName << "=====" ;
+        QFile file(m_strUploadFilePath);
+        qint64 fileSize = file.size(); // 获得文件大小
+
+        PDU *pdu = mkPDU(strCurPath.size()+1);
+        pdu->uiMsgType = ENUM_MSG_TYPE_UPLOAD_FILE_REQUEST;
+        memcpy(pdu->caMsg,strCurPath.toStdString().c_str(),strCurPath.size());
+        sprintf(pdu->caData,"%s %lld",strFileName.toStdString().c_str(),fileSize);
+        TcpClient::getInstance().getTcpSocket().write((char*)pdu,pdu->uiPDULen);
+        free(pdu);
+        pdu=NULL;
+
+        m_pTimer->start(1000);  // 1000ms后上传文件
+    }else{
+        QMessageBox::warning(this,"上传文件","上传文件名不能为空!");
+    }
+}
+
+void Book::uploadFileData()
+{
+    m_pTimer->stop();
+    QFile file(m_strUploadFilePath);
+    if(!file.open(QIODevice::ReadOnly)){
+        QMessageBox::warning(this,"上传文件","打开文件失败!");
+        return;
+    }
+    char *pBuffer = new char[4096];
+    qint64 ret = 0;
+    while(true){
+        ret = file.read(pBuffer,4096);
+        if(ret>0&&ret<=4096){
+            TcpClient::getInstance().getTcpSocket().write(pBuffer,ret);
+        }else if(0==ret){
+            break;
+        }else{
+            QMessageBox::warning(this,"上传文件","上传文件失败:读取文件失败");
+        }
+    }
+    file.close();
+    delete []pBuffer;
+    pBuffer = NULL;
 }
 
 

@@ -2,6 +2,7 @@
 #include <QApplication>
 //#include "online.h"
 //#include"friend.h"
+//#include"book.h"
 
 
 int main(int argc, char *argv[])
@@ -18,5 +19,7 @@ int main(int argc, char *argv[])
 //    online w;
 //    w.show();
 
+//    Book book;
+//    book.show();
     return a.exec();
 }

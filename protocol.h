@@ -34,6 +34,9 @@ typedef unsigned int uint;
 #define ENTER_DIR_FAILED "enter dir failed"
 #define ENTER_DIR_SUCCESS "enter dir success"
 
+#define DEL_FILE_SUCCESS "delete file success"
+#define DEL_FILE_FAILED "delete file failed"
+
 // 消息类型写成枚举形式
 
 enum ENUM_MSG_TYPE{
@@ -84,6 +87,12 @@ enum ENUM_MSG_TYPE{
 
     ENUM_MSG_TYPE_ENTER_DIR_REQUEST,   // 进入文件夹请求
     ENUM_MSG_TYPE_ENTER_DIR_RESPOND,   // 进入文件夹回复
+
+    ENUM_MSG_TYPE_DEL_FILE_REQUEST,   // 删除文件请求
+    ENUM_MSG_TYPE_DEL_FILE_RESPOND,   // 删除文件回复
+
+    ENUM_MSG_TYPE_UPLOAD_FILE_REQUEST,   // 上传文件请求
+    ENUM_MSG_TYPE_UPLOAD_FILE_RESPOND,   // 上传文件回复
 
     ENUM_MSG_TYPE_MAX=0x00ffffff,
 };

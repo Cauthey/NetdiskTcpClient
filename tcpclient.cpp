@@ -229,6 +229,11 @@ void TcpClient::recvMsg()
         QMessageBox::information(this,"进入文件夹",pdu->caData);
         break;
     }
+    case ENUM_MSG_TYPE_DEL_FILE_RESPOND:
+    {
+        QMessageBox::information(this,"删除文件",pdu->caData);
+        break;
+    }
     default:
         break;
     }
