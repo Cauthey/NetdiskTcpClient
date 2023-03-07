@@ -16,8 +16,16 @@ class Book : public QWidget
 public:
     explicit Book(QWidget *parent = nullptr);
     void updateFileList(const PDU *pdu);
+    void clearFileList();
     void clearEnterDir();
     QString getEnterDir();
+    void setDownloadFile(bool status);
+    bool getDownloadStatus();
+    QString getStrSaveFilePath();
+
+    qint64 m_iTotal;
+    qint64 m_iRecved;
+
 
 signals:
 
@@ -32,6 +40,7 @@ public slots:
     void uploadFile();
 
     void uploadFileData();
+    void downloadFile();
 
 
 
@@ -50,6 +59,9 @@ private:
     QString m_strEnterDir;
     QString m_strUploadFilePath;
     QTimer *m_pTimer;
+
+    QString m_strSaveFilePath;
+    bool m_bDownload;
 };
 
 #endif // BOOK_H

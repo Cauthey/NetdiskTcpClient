@@ -37,6 +37,9 @@ typedef unsigned int uint;
 #define DEL_FILE_SUCCESS "delete file success"
 #define DEL_FILE_FAILED "delete file failed"
 
+#define UPLOAD_FILE_SUCCESS "upload file success"
+#define UPLOAD_FILE_FAILED "upload file failed"
+
 // 消息类型写成枚举形式
 
 enum ENUM_MSG_TYPE{
@@ -93,6 +96,9 @@ enum ENUM_MSG_TYPE{
 
     ENUM_MSG_TYPE_UPLOAD_FILE_REQUEST,   // 上传文件请求
     ENUM_MSG_TYPE_UPLOAD_FILE_RESPOND,   // 上传文件回复
+
+    ENUM_MSG_TYPE_DOWNLOAD_FILE_REQUEST,   // 下载文件请求
+    ENUM_MSG_TYPE_DOWNLOAD_FILE_RESPOND,   // 下载文件回复
 
     ENUM_MSG_TYPE_MAX=0x00ffffff,
 };

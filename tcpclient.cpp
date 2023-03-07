@@ -88,157 +88,203 @@ void TcpClient::showConnect()
 
 void TcpClient::recvMsg()
 {
-    qDebug() << m_tcpSocket.bytesAvailable();
-    uint uiPDULen = 0;
-    m_tcpSocket.read((char*)&uiPDULen,sizeof(uint));
-    uint uiMsgLen = uiPDULen - sizeof(PDU);
-    PDU *pdu = mkPDU(uiMsgLen);
-    m_tcpSocket.read((char*)pdu+sizeof(uint),uiPDULen-sizeof(uint));
-    switch(pdu->uiMsgType){
-    case ENUM_MSG_TYPE_REGIST_RESPOND:
-    {
-        if(0 == strcmp(pdu->caData,REGIST_SUCCESS)){
-            QMessageBox::information(this,"注册",REGIST_SUCCESS);
-        }else if(0 == strcmp(pdu->caData,REGIST_FAILED)){
-            QMessageBox::warning(this,"注册",REGIST_FAILED);
-        }else{
-            QMessageBox::warning(this,"注册","unknown error");
+    if(!OpeWidget::getInstance().getBook()->getDownloadStatus()){
+        qDebug() << m_tcpSocket.bytesAvailable();
+        uint uiPDULen = 0;
+        m_tcpSocket.read((char*)&uiPDULen,sizeof(uint));
+        uint uiMsgLen = uiPDULen - sizeof(PDU);
+        PDU *pdu = mkPDU(uiMsgLen);
+        m_tcpSocket.read((char*)pdu+sizeof(uint),uiPDULen-sizeof(uint));
+        switch(pdu->uiMsgType){
+        case ENUM_MSG_TYPE_REGIST_RESPOND:
+        {
+            if(0 == strcmp(pdu->caData,REGIST_SUCCESS)){
+                QMessageBox::information(this,"注册",REGIST_SUCCESS);
+            }else if(0 == strcmp(pdu->caData,REGIST_FAILED)){
+                QMessageBox::warning(this,"注册",REGIST_FAILED);
+            }else{
+                QMessageBox::warning(this,"注册","unknown error");
+            }
+            break;
         }
-        break;
-    }
-    case ENUM_MSG_TYPE_LOGIN_RESPOND:
-    {
-        if(0 == strcmp(pdu->caData,LOGIN_SUCCESS)){
-            m_strCurPath = QString("./%1").arg(m_strLoginName);
-            QMessageBox::information(this,"登录",LOGIN_SUCCESS);
-            OpeWidget::getInstance().show();
-            this->hide();
-            //hide(); 隐藏的形参可写可不写this
-        }else if(0 == strcmp(pdu->caData,LOGIN_FAILED)){
-            QMessageBox::warning(this,"登录",LOGIN_FAILED);
-        }else{
-            QMessageBox::warning(this,"登录","unknown error");
+        case ENUM_MSG_TYPE_LOGIN_RESPOND:
+        {
+            if(0 == strcmp(pdu->caData,LOGIN_SUCCESS)){
+                m_strCurPath = QString("./%1").arg(m_strLoginName);
+                QMessageBox::information(this,"登录",LOGIN_SUCCESS);
+                OpeWidget::getInstance().show();
+                this->hide();
+                //hide(); 隐藏的形参可写可不写this
+            }else if(0 == strcmp(pdu->caData,LOGIN_FAILED)){
+                QMessageBox::warning(this,"登录",LOGIN_FAILED);
+            }else{
+                QMessageBox::warning(this,"登录","unknown error");
+            }
+            break;
         }
-        break;
-    }
-    case ENUM_MSG_TYPE_ALL_ONLINE_RESPOND:
-    {
-        OpeWidget::getInstance().getFriend()->showAllOnlineUser(pdu);
+        case ENUM_MSG_TYPE_ALL_ONLINE_RESPOND:
+        {
+            OpeWidget::getInstance().getFriend()->showAllOnlineUser(pdu);
 
-        break;
-    }
-    case ENUM_MSG_TYPE_SEARCH_USER_RESPOND:
-    {
-        if(0==strcmp(SEARCH_USR_NO,pdu->caData)){
-            QMessageBox::information(this,"搜索",QString("%1: not exist").arg(OpeWidget::getInstance().getFriend()->m_strSearchName));
-        }else if (0==strcmp(SEARCH_USR_ONLINE,pdu->caData)){
-            QMessageBox::information(this,"搜索",QString("%1: online").arg(OpeWidget::getInstance().getFriend()->m_strSearchName));
-        }else if (0==strcmp(SEARCH_USR_OFFLINE,pdu->caData)){
-            QMessageBox::information(this,"搜索",QString("%1: offine").arg(OpeWidget::getInstance().getFriend()->m_strSearchName));
+            break;
         }
-        OpeWidget::getInstance().getFriend()->m_strSearchName = "";
-        break;
-    }
-    //  TODO
-    case ENUM_MSG_TYPE_ADD_FRIEND_REQUEST:
-    {
-        char caName[32]={'\0'};
-        strncpy(caName,pdu->caData+32,32);
-        int res = QMessageBox::information(this,"添加好友",QString("%1 want to add you as friend!").arg(caName)
-                                 ,QMessageBox::Yes,QMessageBox::No);
-        PDU *respdu = mkPDU(0);
-        memcpy(respdu->caData,pdu->caData,32);
-        if(QMessageBox::Yes==res){
-            respdu->uiMsgType = ENUM_MSG_TYPE_ADD_FRIEND_AGREE;
-        }else{
-            respdu->uiMsgType = ENUM_MSG_TYPE_ADD_FRIEND_REFUSE ;
+        case ENUM_MSG_TYPE_SEARCH_USER_RESPOND:
+        {
+            if(0==strcmp(SEARCH_USR_NO,pdu->caData)){
+                QMessageBox::information(this,"搜索",QString("%1: not exist").arg(OpeWidget::getInstance().getFriend()->m_strSearchName));
+            }else if (0==strcmp(SEARCH_USR_ONLINE,pdu->caData)){
+                QMessageBox::information(this,"搜索",QString("%1: online").arg(OpeWidget::getInstance().getFriend()->m_strSearchName));
+            }else if (0==strcmp(SEARCH_USR_OFFLINE,pdu->caData)){
+                QMessageBox::information(this,"搜索",QString("%1: offine").arg(OpeWidget::getInstance().getFriend()->m_strSearchName));
+            }
+            OpeWidget::getInstance().getFriend()->m_strSearchName = "";
+            break;
         }
-        m_tcpSocket.write((char*)respdu,respdu->uiPDULen);
-        free(respdu);
-        respdu =NULL;
-        break;
-    }
-    case ENUM_MSG_TYPE_ADD_FRIEND_RESPOND:
-    {
-        QMessageBox::information(this,"添加好友",pdu->caData);
-        break;
-    }
+        //  TODO
+        case ENUM_MSG_TYPE_ADD_FRIEND_REQUEST:
+        {
+            char caName[32]={'\0'};
+            strncpy(caName,pdu->caData+32,32);
+            int res = QMessageBox::information(this,"添加好友",QString("%1 want to add you as friend!").arg(caName)
+                                     ,QMessageBox::Yes,QMessageBox::No);
+            PDU *respdu = mkPDU(0);
+            memcpy(respdu->caData,pdu->caData,32);
+            if(QMessageBox::Yes==res){
+                respdu->uiMsgType = ENUM_MSG_TYPE_ADD_FRIEND_AGREE;
+            }else{
+                respdu->uiMsgType = ENUM_MSG_TYPE_ADD_FRIEND_REFUSE ;
+            }
+            m_tcpSocket.write((char*)respdu,respdu->uiPDULen);
+            free(respdu);
+            respdu =NULL;
+            break;
+        }
+        case ENUM_MSG_TYPE_ADD_FRIEND_RESPOND:
+        {
+            QMessageBox::information(this,"添加好友",pdu->caData);
+            break;
+        }
+        case ENUM_MSG_TYPE_FRIEND_FLUSH_RESPOND:
+        {
+            OpeWidget::getInstance().getFriend()->updateFriendList(pdu);
+            break;
+        }
+        case ENUM_MSG_TYPE_DELETE_FRIEND_REQUEST:
+        {
+            char caName[32] = {'\0'};
+            memcpy(caName,pdu->caData,32);
+            QMessageBox::information(this,"删除好友",QString("%1 已将你删除").arg(caName));
+            break;
+        }
+        case ENUM_MSG_TYPE_DELETE_FRIEND_RESPOND:
+        {
+            QMessageBox::information(this,"删除好友","删除好友成功");
+           break;
+        }
+        case ENUM_MSG_TYPE_PRIVATE_CHAT_REQUEST:
+        {
+            if(PrivateChat::getInstance().isHidden()){
+                PrivateChat::getInstance().show();
+            }
+            char caSendName[32]={'\0'};
+            memcpy(caSendName,pdu->caData,32);
+            QString strSendName = caSendName;
+            PrivateChat::getInstance().setChatName(strSendName);
+            PrivateChat::getInstance().updateMsg(pdu);
+            break;
+        }
+        case ENUM_MSG_TYPE_GROUP_CHAT_REQUEST:
+        {
+            OpeWidget::getInstance().getFriend()->updateGroupMsg(pdu);
+            break;
+        }
+        case ENUM_MSG_TYPE_CREATE_DIR_RESPOND:
+        {
+            QMessageBox::information(this,"创建文件夹",pdu->caData);
+            break;
+        }
+        case ENUM_MSG_TYPE_FLUSH_FILE_RESPOND:
+        {
+            OpeWidget::getInstance().getBook()->clearFileList();
+            OpeWidget::getInstance().getBook()->updateFileList(pdu);
+            QString strEnterDir = OpeWidget::getInstance().getBook()->getEnterDir();
+            if(!strEnterDir.isEmpty()){
+                m_strCurPath = m_strCurPath + "/"+strEnterDir;
+                qDebug() << "enter dir : "  <<  m_strCurPath;
+            }
+            break;
+        }
+        case ENUM_MSG_TYPE_DEL_DIR_RESPOND:
+        {
+            QMessageBox::information(this,"删除文件夹",pdu->caData);
+            break;
+        }
+        case ENUM_MSG_TYPE_RENAME_DIR_RESPOND:
+        {
+            QMessageBox::information(this,"重命名文件",pdu->caData);
+            break;
+        }
+        case ENUM_MSG_TYPE_ENTER_DIR_RESPOND:
+        {
+            OpeWidget::getInstance().getBook()->clearEnterDir();
+            QMessageBox::information(this,"进入文件夹",pdu->caData);
+            break;
+        }
+        case ENUM_MSG_TYPE_DEL_FILE_RESPOND:
+        {
+            QMessageBox::information(this,"删除文件",pdu->caData);
+            break;
+        }
+        case ENUM_MSG_TYPE_UPLOAD_FILE_RESPOND:
+        {
+            QMessageBox::information(this,"上传文件",pdu->caData);
+            break;
+        }
+        case ENUM_MSG_TYPE_DOWNLOAD_FILE_RESPOND:
+        {
+            qDebug() << pdu->caData;
+            char caFileName[32] = {'\0'};
+            sscanf(pdu->caData,"%s %lld",caFileName,&(OpeWidget::getInstance().getBook()->m_iTotal));
+            if(strlen(caFileName)>0 && OpeWidget::getInstance().getBook()->m_iTotal > 0 ){
+                OpeWidget::getInstance().getBook()->setDownloadFile(true);
+                QString strSaveFilePath = OpeWidget::getInstance().getBook()->getStrSaveFilePath();
+                m_file.setFileName(strSaveFilePath);
+                if(!m_file.open(QIODevice::WriteOnly)){
+                    QMessageBox::warning(this,"下载文件","获取保存文件的路径失败!");
 
-    case ENUM_MSG_TYPE_FRIEND_FLUSH_RESPOND:
-    {
-        OpeWidget::getInstance().getFriend()->updateFriendList(pdu);
-        break;
-    }
-    case ENUM_MSG_TYPE_DELETE_FRIEND_REQUEST:
-    {
-        char caName[32] = {'\0'};
-        memcpy(caName,pdu->caData,32);
-        QMessageBox::information(this,"删除好友",QString("%1 已将你删除").arg(caName));
-        break;
-    }
-    case ENUM_MSG_TYPE_DELETE_FRIEND_RESPOND:
-    {
-        QMessageBox::information(this,"删除好友","删除好友成功");
-       break;
-    }
-    case ENUM_MSG_TYPE_PRIVATE_CHAT_REQUEST:
-    {
-        if(PrivateChat::getInstance().isHidden()){
-            PrivateChat::getInstance().show();
+
+                }
+            }
+            break;
         }
-        char caSendName[32]={'\0'};
-        memcpy(caSendName,pdu->caData,32);
-        QString strSendName = caSendName;
-        PrivateChat::getInstance().setChatName(strSendName);
-        PrivateChat::getInstance().updateMsg(pdu);
-        break;
-    }
-    case ENUM_MSG_TYPE_GROUP_CHAT_REQUEST:
-    {
-        OpeWidget::getInstance().getFriend()->updateGroupMsg(pdu);
-        break;
-    }
-    case ENUM_MSG_TYPE_CREATE_DIR_RESPOND:
-    {
-        QMessageBox::information(this,"创建文件夹",pdu->caData);
-        break;
-    }
-    case ENUM_MSG_TYPE_FLUSH_FILE_RESPOND:
-    {
-        OpeWidget::getInstance().getBook()->updateFileList(pdu);
-        QString strEnterDir = OpeWidget::getInstance().getBook()->getEnterDir();
-        if(!strEnterDir.isEmpty()){
-            m_strCurPath = m_strCurPath + "/"+strEnterDir;
-            qDebug() << "enter dir : "  <<  m_strCurPath;
+        default:
+            break;
         }
-        break;
+        free(pdu);
+        pdu = NULL;
+    }else{
+        QByteArray buffer =  m_tcpSocket.readAll();
+        m_file.write(buffer);
+        Book *pBook = OpeWidget::getInstance().getBook();
+        pBook->m_iRecved += buffer.size();
+        if(pBook->m_iTotal==pBook->m_iRecved){
+            m_file.close();
+            pBook->m_iTotal=0;
+            pBook->m_iRecved=0;
+            pBook->setDownloadFile(false);
+        }
+        else if(pBook->m_iTotal<pBook->m_iRecved){
+            m_file.close();
+            pBook->m_iTotal=0;
+            pBook->m_iRecved=0;
+            pBook->setDownloadFile(false);
+
+            QMessageBox::critical(this,"下载文件","下载文件失败!");
+        }
+
+
+
     }
-    case ENUM_MSG_TYPE_DEL_DIR_RESPOND:
-    {
-        QMessageBox::information(this,"删除文件夹",pdu->caData);
-        break;
-    }
-    case ENUM_MSG_TYPE_RENAME_DIR_RESPOND:
-    {
-        QMessageBox::information(this,"重命名文件",pdu->caData);
-        break;
-    }
-    case ENUM_MSG_TYPE_ENTER_DIR_RESPOND:
-    {
-        OpeWidget::getInstance().getBook()->clearEnterDir();
-        QMessageBox::information(this,"进入文件夹",pdu->caData);
-        break;
-    }
-    case ENUM_MSG_TYPE_DEL_FILE_RESPOND:
-    {
-        QMessageBox::information(this,"删除文件",pdu->caData);
-        break;
-    }
-    default:
-        break;
-    }
-    free(pdu);
-    pdu = NULL;
 }
 #if 0
 void TcpClient::on_send_pb_clicked()

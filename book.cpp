@@ -1,4 +1,4 @@
-#include "book.h"
+﻿#include "book.h"
 #include"tcpclient.h"
 #include<QInputDialog>
 #include<QMessageBox>
@@ -12,6 +12,7 @@ Book::Book(QWidget *parent)
     m_strEnterDir.clear();
 
     m_pTimer = new QTimer;
+    m_bDownload = false;
 
     m_pBookListW = new QListWidget;
     m_PBReturnPB =new QPushButton("返回");
@@ -30,17 +31,21 @@ Book::Book(QWidget *parent)
     pDirVBL->addWidget(m_PBDelDirPB);
     pDirVBL->addWidget(m_PBRenamePB);
     pDirVBL->addWidget(m_PBFlushFilePB);
+    pDirVBL->addWidget(m_PBUploadFilePB);
+    pDirVBL->addWidget(m_PBDownloadPB);
+    pDirVBL->addWidget(m_PBDelFilePB);
+    pDirVBL->addWidget(m_PBShareFilePB);
 
-    QVBoxLayout *pFileVBL = new QVBoxLayout;
-    pFileVBL->addWidget(m_PBUploadFilePB);
-    pFileVBL->addWidget(m_PBDownloadPB);
-    pFileVBL->addWidget(m_PBDelFilePB);
-    pFileVBL->addWidget(m_PBShareFilePB);
+//    QVBoxLayout *pFileVBL = new QVBoxLayout;
+//    pFileVBL->addWidget(m_PBUploadFilePB);
+//    pFileVBL->addWidget(m_PBDownloadPB);
+//    pFileVBL->addWidget(m_PBDelFilePB);
+//    pFileVBL->addWidget(m_PBShareFilePB);
 
     QHBoxLayout *pMain = new QHBoxLayout;
     pMain->addWidget(m_pBookListW);
     pMain->addLayout(pDirVBL);
-    pMain->addLayout(pFileVBL);
+//    pMain->addLayout(pFileVBL);
 
     setLayout(pMain);
 
@@ -60,8 +65,10 @@ Book::Book(QWidget *parent)
             this,SLOT(delRegFile()));
     connect(m_PBUploadFilePB,SIGNAL(clicked(bool)),
             this,SLOT(uploadFile()));
-    connect(m_pTimer,SIGNAL(clicked(bool)),
+    connect(m_pTimer,SIGNAL(timeout()),
             this,SLOT(uploadFileData()));
+    connect(m_PBDownloadPB,SIGNAL(clicked(bool)),
+            this,SLOT(downloadFile()));
 }
 
 void Book::updateFileList(const PDU *pdu)
@@ -69,8 +76,7 @@ void Book::updateFileList(const PDU *pdu)
     if(NULL==pdu){
         return ;
     }
-    m_pBookListW->clear();
-//    QListWidgetItem *pItemTmp = NULL;
+//    QListWidgetItem *pItemTmp = new QListWidgetItem;
 //    int row = m_pBookListW->count();
 //    while(m_pBookListW->count()>0){
 //        pItemTmp = m_pBookListW->item(row-1);
@@ -95,6 +101,11 @@ void Book::updateFileList(const PDU *pdu)
     }
 }
 
+void Book::clearFileList()
+{
+    m_pBookListW->clear();
+}
+
 void Book::clearEnterDir()
 {
     m_strEnterDir.clear();
@@ -103,6 +114,21 @@ void Book::clearEnterDir()
 QString Book::getEnterDir()
 {
     return m_strEnterDir;
+}
+
+void Book::setDownloadFile(bool status)
+{
+    m_bDownload = status;
+}
+
+bool Book::getDownloadStatus()
+{
+    return m_bDownload;
+}
+
+QString Book::getStrSaveFilePath()
+{
+    return m_strSaveFilePath;
 }
 
 void Book::createDir()
@@ -218,8 +244,6 @@ void Book::returnPre()
         clearEnterDir();
         flushFiles();
     }
-
-
 }
 
 void Book::delRegFile()
@@ -242,16 +266,19 @@ void Book::delRegFile()
 
 void Book::uploadFile()
 {
-    QString strCurPath = TcpClient::getInstance().curPath();
+
     m_strUploadFilePath = QFileDialog::getOpenFileName();
-    qDebug() << "上传路径--->" << m_strUploadFilePath;
+    qDebug() << "本地文件路径--->" << m_strUploadFilePath;
     if(!m_strUploadFilePath.isEmpty()){
         int index = m_strUploadFilePath.lastIndexOf('/');
         QString strFileName = m_strUploadFilePath.right(m_strUploadFilePath.size()-index-1);
-        qDebug() << strFileName << "=====" ;
+        qDebug() << "上传文件名称:" <<  strFileName;
         QFile file(m_strUploadFilePath);
         qint64 fileSize = file.size(); // 获得文件大小
+        qDebug() << "上传路径:" <<  strFileName
+                 << "文件大小:" << fileSize;
 
+        QString strCurPath = TcpClient::getInstance().curPath();
         PDU *pdu = mkPDU(strCurPath.size()+1);
         pdu->uiMsgType = ENUM_MSG_TYPE_UPLOAD_FILE_REQUEST;
         memcpy(pdu->caMsg,strCurPath.toStdString().c_str(),strCurPath.size());
@@ -289,6 +316,35 @@ void Book::uploadFileData()
     file.close();
     delete []pBuffer;
     pBuffer = NULL;
+}
+
+void Book::downloadFile()
+{
+    QListWidgetItem *pItem = m_pBookListW->currentItem();
+    if(NULL==pItem){
+        QMessageBox::warning(this,"下载文件","请选择要下载的文件!");
+    }else{
+
+        QString strSaveFilePath = QFileDialog::getSaveFileName();
+        if(strSaveFilePath.isEmpty()){
+            QMessageBox::warning(this,"下载文件","请指定保存路径!");
+            m_strSaveFilePath.clear();
+        }else{
+            m_strSaveFilePath = strSaveFilePath;
+        }
+
+        QString strCurPath = TcpClient::getInstance().curPath();
+        PDU *pdu = mkPDU(0);
+        pdu->uiMsgType = ENUM_MSG_TYPE_DOWNLOAD_FILE_REQUEST;
+        QString strFileName  = pItem->text();
+        strncpy(pdu->caData,strFileName.toStdString().c_str(),strFileName.size());
+        memcpy(pdu->caMsg,strCurPath.toStdString().c_str(),strCurPath.size());
+
+        TcpClient::getInstance().getTcpSocket().write((char*)pdu,pdu->uiPDULen);
+        free(pdu);
+        pdu=NULL;
+    }
+
 }
 
 

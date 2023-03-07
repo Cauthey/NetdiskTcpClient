@@ -50,6 +50,7 @@ private:
     QString m_strLoginName;
 
     QString m_strCurPath;
+    QFile m_file;
 };
 
 #endif // TCPCLIENT_H
