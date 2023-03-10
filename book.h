@@ -1,4 +1,4 @@
-#ifndef BOOK_H
+﻿#ifndef BOOK_H
 #define BOOK_H
 
 #include <QWidget>
@@ -22,6 +22,7 @@ public:
     void setDownloadFile(bool status);
     bool getDownloadStatus();
     QString getStrSaveFilePath();
+    QString getShareFileName();
 
     qint64 m_iTotal;
     qint64 m_iRecved;
@@ -41,6 +42,8 @@ public slots:
 
     void uploadFileData();
     void downloadFile();
+
+    void shareFile();
 
 
 
@@ -62,6 +65,8 @@ private:
 
     QString m_strSaveFilePath;
     bool m_bDownload;
+
+    QString m_strShareFileName;
 };
 
 #endif // BOOK_H

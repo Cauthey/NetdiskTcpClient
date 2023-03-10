@@ -1,4 +1,4 @@
-#ifndef PROTOCOL_H
+﻿#ifndef PROTOCOL_H
 #define PROTOCOL_H
 #include<stdlib.h>
 #include<unistd.h>
@@ -99,6 +99,11 @@ enum ENUM_MSG_TYPE{
 
     ENUM_MSG_TYPE_DOWNLOAD_FILE_REQUEST,   // 下载文件请求
     ENUM_MSG_TYPE_DOWNLOAD_FILE_RESPOND,   // 下载文件回复
+
+    ENUM_MSG_TYPE_SHARE_FILE_REQUEST,   // 分享文件请求
+    ENUM_MSG_TYPE_SHARE_FILE_RESPOND,   // 分享文件回复
+
+    ENUM_MSG_TYPE_SHARE_FILE_INFORM,    // 文件消息通知
 
     ENUM_MSG_TYPE_MAX=0x00ffffff,
 };

@@ -1,4 +1,4 @@
-#include "friend.h"
+﻿#include "friend.h"
 #include "protocol.h"
 #include "tcpclient.h"
 #include<QInputdialog.h>
@@ -98,6 +98,11 @@ void Friend::updateGroupMsg(PDU *pdu)
     QString strMsg = QString("%1 says: %2").arg(pdu->caData).arg((char*)pdu->caMsg);
     m_pShowMsgTE->append(strMsg);
 
+}
+
+QListWidget *Friend::getFriendList()
+{
+    return m_pFriendListWidget;
 }
 
 void Friend::showOnline()

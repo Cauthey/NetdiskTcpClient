@@ -1,4 +1,4 @@
-#include "tcpclient.h"
+﻿#include "tcpclient.h"
 #include "ui_tcpclient.h"
 #include<QByteArray>
 #include<QDebug>
@@ -251,11 +251,36 @@ void TcpClient::recvMsg()
                 m_file.setFileName(strSaveFilePath);
                 if(!m_file.open(QIODevice::WriteOnly)){
                     QMessageBox::warning(this,"下载文件","获取保存文件的路径失败!");
-
-
                 }
             }
             break;
+        }
+        case ENUM_MSG_TYPE_SHARE_FILE_RESPOND:
+        {
+            QMessageBox::information(this,"共享文件",pdu->caData);
+            break;
+        }
+        case ENUM_MSG_TYPE_SHARE_FILE_INFORM:
+        {
+            char *pPath = new char[pdu->uiMsgLen];
+            memcpy(pPath,pdu->caMsg,pdu->uiMsgLen);
+            // strrchr 从后往前找第一个字符
+            char *pos = strrchr(pPath,'/');
+            if(NULL!=pos){
+                pos++;
+                QString strNotice = QString("%1 share file->%2\n Do you recived ths file:").arg(pdu->caData).arg(pos);
+                int ret = QMessageBox::question(this,"共享文件",strNotice);
+                if(QMessageBox::Yes == ret){
+                    PDU *respdu =  mkPDU(pdu->uiMsgLen);
+                    respdu->uiMsgType = ENUM_MSG_TYPE_SHARE_FILE_RESPOND;
+                    memcpy(respdu->caMsg,pdu->caMsg,pdu->uiMsgLen);
+                    QString strName = TcpClient::getInstance().loginName();
+                    strcpy(respdu->caData,strName.toStdString().c_str());
+                    m_tcpSocket.write((char*)respdu,respdu->uiPDULen);
+                }
+
+            }
+
         }
         default:
             break;

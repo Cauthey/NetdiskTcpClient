@@ -4,6 +4,8 @@
 #include<QMessageBox>
 #include<QModelIndex>
 #include<QFileDialog>
+#include"opewidget.h"
+#include"sharefile.h"
 
 
 Book::Book(QWidget *parent)
@@ -26,14 +28,14 @@ Book::Book(QWidget *parent)
     m_PBShareFilePB = new QPushButton("分享文件");
 
     QVBoxLayout *pDirVBL = new QVBoxLayout;
+    pDirVBL->addWidget(m_PBFlushFilePB);
     pDirVBL->addWidget(m_PBReturnPB);
     pDirVBL->addWidget(m_PBCreateDirPB);
-    pDirVBL->addWidget(m_PBDelDirPB);
-    pDirVBL->addWidget(m_PBRenamePB);
-    pDirVBL->addWidget(m_PBFlushFilePB);
-    pDirVBL->addWidget(m_PBUploadFilePB);
-    pDirVBL->addWidget(m_PBDownloadPB);
     pDirVBL->addWidget(m_PBDelFilePB);
+    pDirVBL->addWidget(m_PBDelDirPB);
+    pDirVBL->addWidget(m_PBRenamePB);  
+    pDirVBL->addWidget(m_PBUploadFilePB);
+    pDirVBL->addWidget(m_PBDownloadPB);  
     pDirVBL->addWidget(m_PBShareFilePB);
 
 //    QVBoxLayout *pFileVBL = new QVBoxLayout;
@@ -69,6 +71,8 @@ Book::Book(QWidget *parent)
             this,SLOT(uploadFileData()));
     connect(m_PBDownloadPB,SIGNAL(clicked(bool)),
             this,SLOT(downloadFile()));
+    connect(m_PBShareFilePB,SIGNAL(clicked(bool)),
+            this,SLOT(shareFile()));
 }
 
 void Book::updateFileList(const PDU *pdu)
@@ -129,6 +133,11 @@ bool Book::getDownloadStatus()
 QString Book::getStrSaveFilePath()
 {
     return m_strSaveFilePath;
+}
+
+QString Book::getShareFileName()
+{
+    return m_strShareFileName;
 }
 
 void Book::createDir()
@@ -344,6 +353,29 @@ void Book::downloadFile()
         free(pdu);
         pdu=NULL;
     }
+
+}
+
+void Book::shareFile()
+{
+    QListWidgetItem *pItem = m_pBookListW->currentItem();
+    if(NULL==pItem){
+        QMessageBox::warning(this,"分享文件","请选择要分享的文件!");
+        return;
+    }else{
+        m_strShareFileName = pItem->text();
+
+    }
+    Friend *pFriend = OpeWidget::getInstance().getFriend();
+    QListWidget *pFriendList = pFriend->getFriendList();
+    ShareFile::getInstance().updateFriend(pFriendList);
+
+    if(ShareFile::getInstance().isHidden()){
+        ShareFile::getInstance().show();
+    }
+
+
+
 
 }
 

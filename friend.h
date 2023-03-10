@@ -1,4 +1,4 @@
-#ifndef FRIEND_H
+﻿#ifndef FRIEND_H
 #define FRIEND_H
 
 #include <QWidget>
@@ -20,6 +20,8 @@ public:
     void updateFriendList(PDU *pdu);
     void updateGroupMsg(PDU *pdu);
     QString m_strSearchName;
+
+    QListWidget *getFriendList();
 
 signals:
 
