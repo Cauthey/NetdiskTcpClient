@@ -26,6 +26,10 @@ Book::Book(QWidget *parent)
     m_PBDownloadPB = new QPushButton("下载文件");
     m_PBDelFilePB = new QPushButton("删除文件");
     m_PBShareFilePB = new QPushButton("分享文件");
+    m_PBMoveFilePB = new QPushButton("移动文件");
+    m_PBSelectDirPB = new QPushButton("目标目录");
+    m_PBSelectDirPB->setEnabled(false);
+
 
     QVBoxLayout *pDirVBL = new QVBoxLayout;
     pDirVBL->addWidget(m_PBFlushFilePB);
@@ -33,21 +37,25 @@ Book::Book(QWidget *parent)
     pDirVBL->addWidget(m_PBCreateDirPB);
     pDirVBL->addWidget(m_PBDelFilePB);
     pDirVBL->addWidget(m_PBDelDirPB);
-    pDirVBL->addWidget(m_PBRenamePB);  
-    pDirVBL->addWidget(m_PBUploadFilePB);
-    pDirVBL->addWidget(m_PBDownloadPB);  
-    pDirVBL->addWidget(m_PBShareFilePB);
 
-//    QVBoxLayout *pFileVBL = new QVBoxLayout;
-//    pFileVBL->addWidget(m_PBUploadFilePB);
-//    pFileVBL->addWidget(m_PBDownloadPB);
-//    pFileVBL->addWidget(m_PBDelFilePB);
-//    pFileVBL->addWidget(m_PBShareFilePB);
+//    pDirVBL->addWidget(m_PBRenamePB);
+//    pDirVBL->addWidget(m_PBUploadFilePB);
+//    pDirVBL->addWidget(m_PBDownloadPB);
+//    pDirVBL->addWidget(m_PBShareFilePB);
+//    pDirVBL->addWidget(m_PBMoveFilePB);
+
+    QVBoxLayout *pFileVBL = new QVBoxLayout;
+    pFileVBL->addWidget(m_PBRenamePB);
+    pFileVBL->addWidget(m_PBUploadFilePB);
+    pFileVBL->addWidget(m_PBDownloadPB);
+    pFileVBL->addWidget(m_PBShareFilePB);
+    pFileVBL->addWidget(m_PBMoveFilePB);
+    pFileVBL->addWidget(m_PBSelectDirPB);
 
     QHBoxLayout *pMain = new QHBoxLayout;
     pMain->addWidget(m_pBookListW);
     pMain->addLayout(pDirVBL);
-//    pMain->addLayout(pFileVBL);
+    pMain->addLayout(pFileVBL);
 
     setLayout(pMain);
 
@@ -73,6 +81,10 @@ Book::Book(QWidget *parent)
             this,SLOT(downloadFile()));
     connect(m_PBShareFilePB,SIGNAL(clicked(bool)),
             this,SLOT(shareFile()));
+    connect(m_PBMoveFilePB,SIGNAL(clicked(bool)),
+            this,SLOT(moveFile()));
+    connect(m_PBSelectDirPB,SIGNAL(clicked(bool)),
+            this,SLOT(selectDestDir()));
 }
 
 void Book::updateFileList(const PDU *pdu)
@@ -80,6 +92,7 @@ void Book::updateFileList(const PDU *pdu)
     if(NULL==pdu){
         return ;
     }
+    clearFileList();
 //    QListWidgetItem *pItemTmp = new QListWidgetItem;
 //    int row = m_pBookListW->count();
 //    while(m_pBookListW->count()>0){
@@ -166,6 +179,7 @@ void Book::createDir()
 void Book::flushFiles()
 {
     QString strCurPath = TcpClient::getInstance().curPath();
+    qDebug() << "flushPath----->:" << strCurPath;
     PDU *pdu = mkPDU(strCurPath.size());
     pdu->uiMsgType = ENUM_MSG_TYPE_FLUSH_FILE_REQUEST;
     strncpy((char*)pdu->caMsg,strCurPath.toStdString().c_str(),strCurPath.size());
@@ -229,6 +243,9 @@ void Book::enterDir(const QModelIndex &index)
     pdu->uiMsgType = ENUM_MSG_TYPE_ENTER_DIR_REQUEST;
     strncpy(pdu->caData,strDirName.toStdString().c_str(),strDirName.size());
     memcpy(pdu->caMsg,strCurPath.toStdString().c_str(),strCurPath.size());
+
+    QString strEnterDir = OpeWidget::getInstance().getBook()->getEnterDir();
+    TcpClient::getInstance().setCurPath(TcpClient::getInstance().curPath() + "/"+strEnterDir);
 
     TcpClient::getInstance().getTcpSocket().write((char*)pdu,pdu->uiPDULen);
     free(pdu);
@@ -373,10 +390,46 @@ void Book::shareFile()
     if(ShareFile::getInstance().isHidden()){
         ShareFile::getInstance().show();
     }
+}
 
+void Book::moveFile()
+{
+    QListWidgetItem *p_CurItem = m_pBookListW->currentItem();
+    if(NULL!=p_CurItem){
+        m_strMoveFile = p_CurItem->text();
+        QString strCurPath = TcpClient::getInstance().curPath();
+        m_strMovePath = strCurPath+"/"+m_strMoveFile;
 
+        m_PBSelectDirPB->setEnabled(true);
+    }else{
+        QMessageBox::warning(this,"移动文件","请选择要移动的文件!");
+    }
+}
 
+void Book::selectDestDir()
+{
+    QListWidgetItem *p_CurItem = m_pBookListW->currentItem();
+    if(NULL!=p_CurItem){
+        QString strDestDir = p_CurItem->text();
+        QString strCurPath = TcpClient::getInstance().curPath();
+        m_strDestDir = strCurPath+"/"+strDestDir;
 
+        int srcLen = m_strMovePath.size();
+        int destLen = m_strDestDir.size();
+        PDU *pdu = mkPDU(srcLen+destLen+2);
+        pdu->uiMsgType = ENUM_MSG_TYPE_MOVE_FILE_REQUEST;
+        sprintf(pdu->caData,"%d %d %s",srcLen,destLen,m_strMoveFile.toStdString().c_str());
+
+        memcpy(pdu->caMsg,m_strMovePath.toStdString().c_str(),srcLen);
+        memcpy((char*)(pdu->caMsg)+srcLen+1,m_strDestDir.toStdString().c_str(),destLen);
+
+        TcpClient::getInstance().getTcpSocket().write((char*)pdu,pdu->uiPDULen);
+        free(pdu);
+        pdu=NULL;
+    }else{
+        QMessageBox::warning(this,"移动文件","请选择要移动的文件!");
+    }
+    m_PBSelectDirPB->setEnabled(false);
 }
 
 

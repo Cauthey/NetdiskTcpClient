@@ -49,7 +49,6 @@ Friend::Friend(QWidget *parent)
 
     connect(m_pShowOnlineUsrPB,SIGNAL(clicked(bool))
             ,this,SLOT(showOnline()));
-
     connect(m_pSearchUsrPB,SIGNAL(clicked(bool))
             ,this,SLOT(searchUser()));
     connect(m_pFlushFriendPB,SIGNAL(clicked(bool))

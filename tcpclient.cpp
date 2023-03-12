@@ -205,11 +205,11 @@ void TcpClient::recvMsg()
         }
         case ENUM_MSG_TYPE_FLUSH_FILE_RESPOND:
         {
-            OpeWidget::getInstance().getBook()->clearFileList();
+//            OpeWidget::getInstance().getBook()->clearFileList();
             OpeWidget::getInstance().getBook()->updateFileList(pdu);
             QString strEnterDir = OpeWidget::getInstance().getBook()->getEnterDir();
             if(!strEnterDir.isEmpty()){
-                m_strCurPath = m_strCurPath + "/"+strEnterDir;
+//                m_strCurPath = m_strCurPath + "/"+strEnterDir;
                 qDebug() << "enter dir : "  <<  m_strCurPath;
             }
             break;
@@ -281,6 +281,11 @@ void TcpClient::recvMsg()
 
             }
 
+        }
+        case ENUM_MSG_TYPE_MOVE_FILE_RESPOND:
+        {
+            QMessageBox::information(this,"移动文件",pdu->caData);
+            break;
         }
         default:
             break;

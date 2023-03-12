@@ -40,6 +40,11 @@ typedef unsigned int uint;
 #define UPLOAD_FILE_SUCCESS "upload file success"
 #define UPLOAD_FILE_FAILED "upload file failed"
 
+
+#define MOVE_FILE_SUCCESS "move file success"
+#define MOVE_FILE_ERROR "move file unknown error"
+#define MOVE_FILE_FAILED "move file failed : a regular file"
+
 // 消息类型写成枚举形式
 
 enum ENUM_MSG_TYPE{
@@ -104,6 +109,10 @@ enum ENUM_MSG_TYPE{
     ENUM_MSG_TYPE_SHARE_FILE_RESPOND,   // 分享文件回复
 
     ENUM_MSG_TYPE_SHARE_FILE_INFORM,    // 文件消息通知
+
+
+    ENUM_MSG_TYPE_MOVE_FILE_REQUEST,   // 移动文件请求
+    ENUM_MSG_TYPE_MOVE_FILE_RESPOND,   // 移动文件回复
 
     ENUM_MSG_TYPE_MAX=0x00ffffff,
 };

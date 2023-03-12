@@ -44,6 +44,8 @@ public slots:
     void downloadFile();
 
     void shareFile();
+    void moveFile();
+    void selectDestDir();
 
 
 
@@ -58,6 +60,8 @@ private:
     QPushButton *m_PBDownloadPB;
     QPushButton *m_PBDelFilePB;
     QPushButton *m_PBShareFilePB;
+    QPushButton *m_PBMoveFilePB;
+    QPushButton *m_PBSelectDirPB;
 
     QString m_strEnterDir;
     QString m_strUploadFilePath;
@@ -67,6 +71,10 @@ private:
     bool m_bDownload;
 
     QString m_strShareFileName;
+
+    QString m_strMoveFile;
+    QString m_strMovePath;
+    QString m_strDestDir;
 };
 
 #endif // BOOK_H
