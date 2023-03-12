@@ -122,6 +122,11 @@ void TcpClient::recvMsg()
             }
             break;
         }
+        case ENUM_MSG_TYPE_DELETEUSER_RESPOND:
+        {
+            QMessageBox::information(this,"注销用户",pdu->caData);
+            break;
+        }
         case ENUM_MSG_TYPE_ALL_ONLINE_RESPOND:
         {
             OpeWidget::getInstance().getFriend()->showAllOnlineUser(pdu);
@@ -374,5 +379,19 @@ void TcpClient::on_regist_pb_clicked()
 
 void TcpClient::on_cancel_pb_clicked()
 {
-
+    QString strName = ui->name_le->text();
+    QString strPwd = ui->pwd_le->text();
+    if(!strName.isEmpty()&& !strPwd.isEmpty())
+    {
+        PDU *pdu = mkPDU(0);
+        pdu->uiMsgType = ENUM_MSG_TYPE_DELETEUSER_REQUEST;
+        strncpy(pdu->caData,strName.toStdString().c_str(),32);   // 数组前32位放用户名
+        strncpy(pdu->caData+32,strPwd.toStdString().c_str(),32); // 数组后32位放密码
+        qDebug() << pdu->caData;
+        m_tcpSocket.write((char*)pdu,pdu->uiPDULen);
+        free(pdu);
+        pdu = NULL;
+    }else{
+        QMessageBox::critical(this,"注销用户","注销失败，用户名或用户密码为空！");
+    }
 }
